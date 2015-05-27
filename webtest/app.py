@@ -23,6 +23,7 @@ from six import BytesIO
 from six import string_types
 from six import binary_type
 from six import text_type
+from six import PY2
 from six.moves import http_cookiejar
 
 from webtest.compat import urlparse
@@ -300,7 +301,10 @@ class TestApp(object):
 
         """
         environ = self._make_environ(extra_environ)
-        url = str(url)
+        if PY2 and isinstance(url, text_type):
+            url = str(url.encode('utf8'))
+        else:
+            url = str(url)
         url = self._remove_fragment(url)
         if params:
             if not isinstance(params, string_types):
@@ -311,7 +315,8 @@ class TestApp(object):
                 url += str('?')
             url += params
         if str('?') in url:
-            url, environ['QUERY_STRING'] = url.split(str('?'), 1)
+            url, qs = url.split(str('?'), 1)
+            environ['QUERY_STRING'] = str(qs)
         else:
             environ['QUERY_STRING'] = str('')
         req = self.RequestClass.blank(url, environ)

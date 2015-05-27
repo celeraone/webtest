@@ -63,6 +63,8 @@ class TestApp(unittest.TestCase):
         resp.mustcontain('a=b', 'c=d')
         resp = self.app.get('/?a=b&c=d', dict(e='f'))
         resp.mustcontain('a=b', 'c=d', 'e=f')
+        resp = self.app.get('/?d=ü@example.com')
+        resp.mustcontain('d=ü@example.com')
 
     def test_request_with_testrequest(self):
         req = webtest.TestRequest.blank('/')
