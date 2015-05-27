@@ -25,7 +25,6 @@ class DebugApp(object):
             resp = webob.Response(content_type='text/html')
             resp.body = self.form
             return resp(environ, start_response)
-
         if 'error' in req.GET:
             raise Exception('Exception requested')
 
@@ -44,7 +43,13 @@ class DebugApp(object):
                     value = repr(value)
                 parts.append(str('%s: %s\n') % (name, value))
 
-            body = ''.join(parts)
+            body = ''
+            for part in parts:
+                if isinstance(part, six.text_type) and six.PY2:
+                    body += part.encode('latin1')
+                else:
+                    body += part
+
             if not isinstance(body, six.binary_type):
                 body = body.encode('latin1')
 
